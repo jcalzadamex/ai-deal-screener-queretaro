@@ -11,16 +11,22 @@ from PIL import Image
 def cargar_base():
     return pd.read_csv("base_mercado_qro.csv")
 
+
 df = cargar_base()
 
 # =========================
 # 2. ENTRENAR MODELOS DE ML
 # =========================
 
-# Modelo de RENTAS: usa precio como feature y predice renta
+# Modelo de RENTAS: YA NO usa precio como feature; predice renta según m2, recámaras, baños, etc.
 feature_cols_rent = [
-    "m2", "recamaras", "banos", "estacionamientos",
-    "precio_venta_mxn", "antiguedad_anios", "vacancia_pct", "riesgo_zona"
+    "m2",
+    "recamaras",
+    "banos",
+    "estacionamientos",
+    "antiguedad_anios",
+    "vacancia_pct",
+    "riesgo_zona",
 ]
 X_rent = df[feature_cols_rent]
 y_rent = df["renta_mensual_mxn"]
@@ -34,8 +40,13 @@ model_rent.fit(X_rent, y_rent)
 
 # Modelo de PRECIO: NO usa precio como feature; predice precio_venta_mxn
 feature_cols_price = [
-    "m2", "recamaras", "banos", "estacionamientos",
-    "antiguedad_anios", "vacancia_pct", "riesgo_zona"
+    "m2",
+    "recamaras",
+    "banos",
+    "estacionamientos",
+    "antiguedad_anios",
+    "vacancia_pct",
+    "riesgo_zona",
 ]
 X_price = df[feature_cols_price]
 y_price = df["precio_venta_mxn"]
@@ -53,36 +64,44 @@ model_price.fit(X_price, y_price)
 
 st.set_page_config(
     page_title="AI Deal Screener – Querétaro",
-    layout="wide"
+    layout="wide",
 )
-# --- Ajuste para reducir el espacio entre logo y título ---
-st.markdown("""
+
+# --- Ajuste CSS para reducir espacio entre logo y título ---
+st.markdown(
+    """
     <style>
-        /* Reduce el padding superior general */
+        /* Reduce padding superior general del contenido principal */
         .main {
             padding-top: 0rem !important;
         }
 
-        /* Reduce espacio del contenedor del logo */
+        /* Contenedor del logo */
         .logo-container {
-            margin-bottom: -40px !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: -20px !important;
+            margin-bottom: -35px !important;
         }
 
-        /* Acerca el título al logo */
+        /* Ajuste del título principal */
         h1 {
-            margin-top: 50px !important;
+            margin-top: -10px !important;
         }
     </style>
-""", unsafe_allow_html=True)
-# --- Fin del ajuste ---
+    """,
+    unsafe_allow_html=True,
+)
+
 # Logo centrado en la parte superior (opcional)
 try:
-    logo = Image.open("logo.jpg")
-    st.markdown("<div class='logo-container' style='text-align: center;'>", unsafe_allow_html=True)
+    logo = Image.open("logo.png")
+    st.markdown("<div class='logo-container'>", unsafe_allow_html=True)
     st.image(logo, width=220)
     st.markdown("</div>", unsafe_allow_html=True)
 except Exception:
-    pass
+    pass  # si no hay logo, la app sigue funcionando
 
 st.title("🏙️ Modelo de Pricing AI/ML – Querétaro")
 st.caption("Herramienta interna de análisis de oportunidades residenciales con modelos de IA / ML")
@@ -113,7 +132,7 @@ zona = st.sidebar.selectbox(
     sorted(df["zona"].unique())
 )
 
-m2 = st.sidebar.slider("Metros cuadrados construidos(TEST)", 40, 420, 90, step=5)
+m2 = st.sidebar.slider("Metros cuadrados construidos", 40, 420, 110, step=5)
 recamaras = st.sidebar.slider("Recámaras", 1, 5, 3)
 banos = st.sidebar.slider("Baños", 1, 4, 2)
 estacionamientos = st.sidebar.slider("Estacionamientos", 0, 4, 2)
@@ -156,7 +175,7 @@ else:
 # 5. MAPAS DE ZONA / SUPUESTOS
 # =========================
 
-riesgo_por_zona = {
+riesgo_por_zona_map = {
     "Zibatá": 1,
     "Cumbres del Lago": 2,
     "Juriquilla": 2,
@@ -166,7 +185,7 @@ riesgo_por_zona = {
     "Mileno III": 3,
     "Centro": 4
 }
-riesgo_zona = riesgo_por_zona.get(zona, 3)
+riesgo_zona = riesgo_por_zona_map.get(zona, 3)
 
 yield_objetivo_zona = {
     "Zibatá": 7.5,
@@ -197,13 +216,12 @@ apreciacion_estimada = apreciacion_zona.get(zona, 3.0)
 # 6. PREDICCIONES DE LOS MODELOS
 # =========================
 
-# Para modelo de RENTAS (usa precio)
+# Modelo RENTAS (sin precio como input)
 input_rent = pd.DataFrame([{
     "m2": m2,
     "recamaras": recamaras,
     "banos": banos,
     "estacionamientos": estacionamientos,
-    "precio_venta_mxn": precio_venta_mxn,
     "antiguedad_anios": antiguedad_anios,
     "vacancia_pct": vacancia_pct,
     "riesgo_zona": riesgo_zona
@@ -224,7 +242,7 @@ ajuste_zona = {
 factor_zona = ajuste_zona.get(zona, 1.0)
 predicted_rent_ajustada = predicted_rent * factor_zona
 
-# Para modelo de PRECIO (NO usa precio como input)
+# Modelo PRECIO (sin precio como input)
 input_price = pd.DataFrame([{
     "m2": m2,
     "recamaras": recamaras,
@@ -386,9 +404,7 @@ if modulo == "Rentas":
 
         st.markdown("\n".join(comentario))
 
-        st.info(
-            f"Suposición de apreciación anual implícita en **{zona}**: ~{apreciacion_estimada:.1f}%."
-        )
+        st.info(f"Suposición de apreciación anual implícita en **{zona}**: ~{apreciacion_estimada:.1f}%.")
 
     with tab_analisis:
         st.subheader("📉 Detalle del análisis financiero")
@@ -429,10 +445,8 @@ if modulo == "Rentas":
         st.markdown("---")
 
         comp_df = pd.DataFrame(
-            {
-                "Métrica": ["Yield objetivo en zona", "Cap rate estimado del deal"],
-                "Valor (%)": [yield_target, cap_rate]
-            }
+            {"Métrica": ["Yield objetivo en zona", "Cap rate estimado del deal"],
+             "Valor (%)": [yield_target, cap_rate]}
         )
         st.markdown("#### Comparación con benchmark de la zona")
         st.table(comp_df.style.format({"Valor (%)": "{:.2f}"}))
@@ -453,12 +467,7 @@ if modulo == "Rentas":
 
     with tab_datos:
         st.subheader("📁 Base interna de mercado residencial – Querétaro")
-        st.write(
-            """
-            Vista tabular de la base utilizada para entrenar el modelo de estimación de rentas
-            y calibrar supuestos de vacancia y riesgo por zona.
-            """
-        )
+        st.write("Vista tabular de la base utilizada para entrenar el modelo de estimación de rentas y precios.")
         st.dataframe(df)
 
 # =========================
@@ -540,9 +549,6 @@ else:
     with tab_datos_v:
         st.subheader("📁 Base interna de mercado residencial – Querétaro")
         st.write(
-            """
-            Esta base soporta tanto la estimación de renta como la estimación de precio de venta
-            para inmuebles residenciales en Querétaro.
-            """
+            "Esta base soporta tanto la estimación de renta como la estimación de precio de venta para inmuebles residenciales en Querétaro."
         )
         st.dataframe(df)
