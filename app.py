@@ -70,7 +70,7 @@ st.markdown("""
 
         /* Acerca el título al logo */
         h1 {
-            margin-top: -10px !important;
+            margin-top: 20px !important;
         }
     </style>
 """, unsafe_allow_html=True)
