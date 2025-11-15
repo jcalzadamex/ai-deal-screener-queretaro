@@ -55,15 +55,34 @@ st.set_page_config(
     page_title="AI Deal Screener – Querétaro",
     layout="wide"
 )
+# --- Ajuste para reducir el espacio entre logo y título ---
+st.markdown("""
+    <style>
+        /* Reduce el padding superior general */
+        .main {
+            padding-top: 0rem !important;
+        }
 
+        /* Reduce espacio del contenedor del logo */
+        .logo-container {
+            margin-bottom: -40px !important;
+        }
+
+        /* Acerca el título al logo */
+        h1 {
+            margin-top: -40px !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+# --- Fin del ajuste ---
 # Logo centrado en la parte superior (opcional)
 try:
     logo = Image.open("logo.png")
-    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    st.markdown("<div class='logo-container' style='text-align: center;'>", unsafe_allow_html=True)
     st.image(logo, width=220)
     st.markdown("</div>", unsafe_allow_html=True)
 except Exception:
-    pass  # si no hay logo, la app sigue funcionando
+    pass
 
 st.title("🏙️ Modelo de Pricing AI/ML – Querétaro")
 st.caption("Herramienta interna de análisis de oportunidades residenciales con modelos de IA / ML")
