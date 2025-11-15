@@ -113,7 +113,7 @@ zona = st.sidebar.selectbox(
     sorted(df["zona"].unique())
 )
 
-m2 = st.sidebar.slider("Metros cuadrados construidos", 40, 420, 90, step=5)
+m2 = st.sidebar.slider("Metros cuadrados construidos(TEST)", 40, 420, 90, step=5)
 recamaras = st.sidebar.slider("Recámaras", 1, 5, 3)
 banos = st.sidebar.slider("Baños", 1, 4, 2)
 estacionamientos = st.sidebar.slider("Estacionamientos", 0, 4, 2)
