@@ -65,7 +65,7 @@ st.markdown("""
 
         /* Reduce espacio del contenedor del logo */
         .logo-container {
-            margin-bottom: -10px !important;
+            margin-bottom: -60px !important;
         }
 
         /* Acerca el título al logo */
