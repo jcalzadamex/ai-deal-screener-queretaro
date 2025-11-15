@@ -65,7 +65,7 @@ try:
 except Exception:
     pass  # si no hay logo, la app sigue funcionando
 
-st.title("🏙️ AI Deal Screener – Querétaro")
+st.title("🏙️ Modelo de Pricing AI/ML – Querétaro")
 st.caption("Herramienta interna de análisis de oportunidades residenciales con modelos de IA / ML")
 
 st.markdown(
