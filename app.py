@@ -2,11 +2,7 @@
 import streamlit as st
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-
 from PIL import Image
-
-logo = Image.open("logo.png")
-st.image(logo, width=200)
 
 # =========================
 # 1. BASE DE DATOS DE MERCADO – QUERÉTARO
@@ -42,6 +38,15 @@ st.set_page_config(
     page_title="AI Deal Screener – Querétaro",
     layout="wide"
 )
+
+# Logo centrado en la parte superior
+try:
+    logo = Image.open("logo.png")
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    st.image(logo, width=220)
+    st.markdown("</div>", unsafe_allow_html=True)
+except Exception:
+    pass  # si no hay logo, la app sigue funcionando
 
 st.title("🏙️ AI Deal Screener – Querétaro")
 st.caption("Herramienta interna para análisis rápido de oportunidades de inversión residencial con modelos de IA / ML")
