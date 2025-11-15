@@ -2,47 +2,16 @@
 import streamlit as st
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-import math
 
 # =========================
 # 1. BASE DE DATOS DE MERCADO – QUERÉTARO
 # =========================
 
-data = [
-    # zona, m2, recámaras, baños, estacionamientos, precio_venta_mxn, renta_mensual_mxn, antigüedad_años, vacancia_pct, riesgo_zona
-    ["Juriquilla",       95, 2, 2, 2, 2900000, 15500, 3, 4.0, 2],
-    ["Juriquilla",      120, 3, 2, 2, 3600000, 20000, 5, 3.5, 2],
-    ["Juriquilla",      135, 3, 3, 2, 4200000, 23000, 4, 3.0, 2],
-    ["El Refugio",       85, 2, 2, 1, 2600000, 14000, 4, 5.0, 3],
-    ["El Refugio",      110, 3, 2, 2, 3200000, 18500, 6, 5.5, 3],
-    ["El Refugio",       95, 3, 2, 1, 2950000, 17000, 5, 5.0, 3],
-    ["Zibatá",           90, 2, 2, 2, 2800000, 16000, 2, 3.0, 1],
-    ["Zibatá",          130, 3, 3, 2, 4100000, 23000, 1, 2.5, 1],
-    ["Zibatá",          150, 3, 3, 3, 4700000, 26000, 2, 2.8, 1],
-    ["Centro",           70, 2, 1, 0, 2200000, 13000, 25, 7.0, 4],
-    ["Centro",           55, 1, 1, 0, 1800000, 10500, 30, 8.0, 4],
-    ["Centro",           90, 3, 2, 0, 2600000, 14500, 20, 7.5, 4],
-    ["Corregidora",      90, 3, 2, 1, 2500000, 13500, 10, 6.0, 3],
-    ["Corregidora",     115, 3, 3, 2, 3100000, 17000, 8, 5.5, 3],
-    ["Corregidora",     130, 3, 3, 2, 3400000, 18200, 9, 5.8, 3],
-    ["Mileno III",       80, 2, 2, 1, 2400000, 13500, 7, 5.0, 3],
-    ["Mileno III",      100, 3, 2, 2, 3000000, 16500, 9, 5.5, 3],
-    ["Mileno III",       95, 2, 2, 1, 2700000, 15000, 8, 5.2, 3],
-    ["Cumbres del Lago",110, 3, 3, 2, 3800000, 21000, 4, 3.5, 2],
-    ["Cumbres del Lago",140, 3, 3, 3, 4600000, 25000, 3, 3.0, 2],
-    ["Cumbres del Lago",160, 4, 4, 3, 5200000, 28000, 2, 2.8, 2],
-    ["Jurica",          150, 4, 3, 3, 5200000, 29000, 12, 4.5, 2],
-    ["Jurica",          180, 4, 4, 3, 6200000, 33500, 15, 5.0, 2],
-    ["Jurica",          200, 4, 4, 4, 6900000, 36500, 10, 4.2, 2]
-]
+@st.cache_data
+def cargar_base():
+    return pd.read_excel("base_mercado_qro.xlsx")
 
-columns = [
-    "zona", "m2", "recamaras", "banos", "estacionamientos",
-    "precio_venta_mxn", "renta_mensual_mxn", "antiguedad_anios",
-    "vacancia_pct", "riesgo_zona"
-]
-
-df = pd.DataFrame(data, columns=columns)
+df = cargar_base()
 
 # =========================
 # 2. ENTRENAR MODELO DE ML
@@ -56,7 +25,7 @@ y = df["renta_mensual_mxn"]
 model = RandomForestRegressor(
     n_estimators=400,
     random_state=42,
-    max_depth=8
+    max_depth=10
 )
 model.fit(X, y)
 
@@ -74,9 +43,9 @@ st.caption("Herramienta interna para análisis rápido de oportunidades de inver
 
 st.markdown(
     '''
-    Este panel está pensado como un **copiloto de análisis** para inversiones residenciales en Querétaro.
+    Panel diseñado como un **copiloto de análisis** para inversiones residenciales en Querétaro.
 
-    - Modelo de **Random Forest Regressor** entrenado con una base interna de mercado residencial.
+    - Modelo de **Random Forest** entrenado con una base interna de mercado residencial.
     - Estima **renta mensual**, **rentabilidad bruta**, **NOI, cap rate, cash-on-cash y DSCR**.
     - Integra supuestos de **vacancia, gastos operativos y deuda** para aproximar el análisis real de un deal.
     '''
@@ -93,7 +62,7 @@ zona = st.sidebar.selectbox(
     sorted(df["zona"].unique())
 )
 
-m2 = st.sidebar.slider("Metros cuadrados construidos", 40, 250, 110, step=5)
+m2 = st.sidebar.slider("Metros cuadrados construidos", 40, 260, 110, step=5)
 recamaras = st.sidebar.slider("Recámaras", 1, 5, 3)
 banos = st.sidebar.slider("Baños", 1, 4, 2)
 estacionamientos = st.sidebar.slider("Estacionamientos", 0, 4, 2)
@@ -101,7 +70,7 @@ estacionamientos = st.sidebar.slider("Estacionamientos", 0, 4, 2)
 precio_venta_mxn = st.sidebar.number_input(
     "Precio de compra (MXN)",
     min_value=800000,
-    max_value=15000000,
+    max_value=20000000,
     value=3800000,
     step=50000
 )
@@ -193,7 +162,7 @@ predicted_rent_ajustada = predicted_rent * factor_zona
 # =========================
 
 ingreso_bruto_anual = predicted_rent_ajustada * 12 * (1 - vacancia_pct / 100.0)
-gastos_operativos_anuales = ingreso_bruto_anual * (gastos_operitivos_pct / 100.0) if 'gastos_operitivos_pct' in locals() else ingreso_bruto_anual * (gastos_operativos_pct / 100.0)
+gastos_operativos_anuales = ingreso_bruto_anual * (gastos_operativos_pct / 100.0)
 noi = ingreso_bruto_anual - gastos_operativos_anuales
 
 cap_rate = (noi / precio_venta_mxn) * 100 if precio_venta_mxn > 0 else 0
@@ -221,7 +190,6 @@ dscr = noi / pago_anual_deuda if pago_anual_deuda > 0 else float("inf")
 # Score global del deal
 def calcular_score(rentabilidad, riesgo, vacancia, coc, dscr, objetivo):
     score = 0
-    # rentabilidad (cap rate)
     if rentabilidad >= objetivo + 1:
         score += 4
     elif rentabilidad >= objetivo - 0.3:
@@ -230,35 +198,30 @@ def calcular_score(rentabilidad, riesgo, vacancia, coc, dscr, objetivo):
         score += 2
     else:
         score += 1
-    # riesgo (más bajo, mejor)
     if riesgo <= 2:
         score += 3
     elif riesgo == 3:
         score += 2
     else:
         score += 1
-    # vacancia (más baja, mejor)
     if vacancia <= 4:
         score += 3
     elif vacancia <= 7:
         score += 2
     else:
         score += 1
-    # cash-on-cash
     if coc >= 10:
         score += 3
     elif coc >= 7:
         score += 2
     elif coc >= 5:
         score += 1
-    # dscr
     if dscr >= 1.5:
         score += 3
     elif dscr >= 1.2:
         score += 2
     elif dscr >= 1.0:
         score += 1
-
     return score
 
 score = calcular_score(cap_rate, riesgo_zona, vacancia_pct, cash_on_cash, dscr, yield_target)
@@ -340,7 +303,7 @@ with tab_resumen:
     elif dscr >= 1.2:
         comentario.append("- El **DSCR** es aceptable, aunque sensible a desviaciones del NOI.")
     else:
-        comentario.append("- El **DSCR** es ajustado; el deal es frágil ante bajadas de renta o subidas de tasa.")
+        comentario.append("- El **DSCR** es ajustado; el deal es más sensible a cambios en renta o tipos.")
 
     st.markdown("\n".join(comentario))
 
@@ -378,7 +341,7 @@ with tab_analisis:
         st.write(f"- DSCR: **{dscr:,.2f}x**")
 
         if dscr < 1.1:
-            st.error("El DSCR está por debajo de 1.1x: el flujo es frágil para un banco tradicional.")
+            st.error("El DSCR está por debajo de 1.1x: el flujo es frágil para una política de riesgo conservadora.")
         elif dscr < 1.3:
             st.warning("DSCR en zona intermedia (1.1x - 1.3x): financiable, pero con condiciones más estrictas.")
         else:
@@ -413,8 +376,8 @@ with tab_datos:
     st.subheader("📁 Base interna de mercado residencial – Querétaro")
     st.write(
         '''
-        Vista tabular de la base de datos utilizada para entrenar el modelo de estimación de rentas
-        y para calibrar los supuestos de vacancia y riesgo por zona.
+        Vista tabular de la base utilizada para entrenar el modelo de estimación de rentas
+        y calibrar supuestos de vacancia y riesgo por zona.
         '''
     )
     st.dataframe(df)
