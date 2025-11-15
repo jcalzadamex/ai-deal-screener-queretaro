@@ -65,12 +65,12 @@ st.markdown("""
 
         /* Reduce espacio del contenedor del logo */
         .logo-container {
-            margin-bottom: -40px !important;
+            margin-bottom: -10px !important;
         }
 
         /* Acerca el título al logo */
         h1 {
-            margin-top: 20px !important;
+            margin-top: 50px !important;
         }
     </style>
 """, unsafe_allow_html=True)
