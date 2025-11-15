@@ -77,7 +77,7 @@ st.markdown("""
 # --- Fin del ajuste ---
 # Logo centrado en la parte superior (opcional)
 try:
-    logo = Image.open("logo.png")
+    logo = Image.open("logo.jpg")
     st.markdown("<div class='logo-container' style='text-align: center;'>", unsafe_allow_html=True)
     st.image(logo, width=220)
     st.markdown("</div>", unsafe_allow_html=True)
