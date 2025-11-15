@@ -3,6 +3,11 @@ import streamlit as st
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
+from PIL import Image
+
+logo = Image.open("logo.png")
+st.image(logo, width=200)
+
 # =========================
 # 1. BASE DE DATOS DE MERCADO – QUERÉTARO
 # =========================
